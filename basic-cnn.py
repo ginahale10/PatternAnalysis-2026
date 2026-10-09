@@ -14,7 +14,7 @@ if not torch.cuda.is_available():
     print("Warning CUDA not Found. Using CPU")
 
 # Hyper-parameters
-num_epochs = 8
+num_epochs = 1
 learning_rate = 1e-3
 channels = 1
 depth = 64
@@ -63,10 +63,10 @@ class ConvNetwork(nn.Module):
 print("> Setup dataset")
 transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize((0.5,), (1.0,))])
 
-trainset = torchvision.datasets.MNIST(root='/mnt/d/uqwdai1/data/rdm_backed/pytorch/', train=True, download=True, transform=transform)
+trainset = torchvision.datasets.MNIST(root='/home/Student/s4745073/comp3710/project/PatternAnalysis-2026/minst/pytorch/', train=True, download=True, transform=transform)
 train_loader = torch.utils.data.DataLoader(trainset, batch_size=128, shuffle=True) #num_workers=6
 
-testset = torchvision.datasets.MNIST(root='/mnt/d/uqwdai1/data/rdm_backed/pytorch/', train=False, download=True, transform=transform)
+testset = torchvision.datasets.MNIST(root='/home/Student/s4745073/comp3710/project/PatternAnalysis-2026/minst/pytorch/', train=False, download=True, transform=transform)
 test_loader = torch.utils.data.DataLoader(testset, batch_size=100, shuffle=False) #num_workers=6
 
 
