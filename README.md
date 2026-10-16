@@ -1,20 +1,52 @@
-# Pattern Analysis
-Pattern Analysis of various datasets by COMP3710 students in 2025 at the University of Queensland.
+# ADNI classification using ConvNeXt model
+Helping to diagnose Alzheimer's disease using MRI brain scans.
 
-We create pattern recognition and image processing library for Tensorflow (TF), PyTorch or JAX.
+## Preparing the dataset
+ADNI is a publically avaiable dataset containing multiple brain scans for each patient, classifying them into 3 categories: Cognitivally Unimpaired, Mild Cognitive Impairment and Alzheimer's Disease. 
 
-This library is created and maintained by The University of Queensland [COMP3710](https://my.uq.edu.au/programs-courses/course.html?course_code=comp3710) students.
 
-The library includes the following implemented in Tensorflow:
-* fractals 
-* recognition problems
+## Baseline model - basic CNN classifier
 
-In the recognition folder, you will find many recognition problems solved including:
-* segmentation
-* classification
-* graph neural networks
-* StyleGAN
-* Stable diffusion
-* transformers
-etc.
+### CNN Results
 
+#### Evaluation Metrics
+
+- Add in confusion matrix made in SKlearn for both of them
+- add in graph that has epochs on the x axis, loss and training accuracy on the y axis
+-  Profile computational cost (peak GPU VRAM, parameter count, inference latency).
+
+| Metric    | Value |
+|-----------|------:|
+| Accuracy  |       |
+| Precision |       |
+| Recall    |       |
+| F1 Score  |       |
+| F1 Score AD |       |
+| F1 Score NC |       |
+| AUCROC |       |
+
+#### Computational Cost
+
+| Metric    | Value |
+|-----------|------:|
+| peak GPU VRAM  |       |
+| parameter count |       |
+| inference latency    |       |
+
+
+
+## ConvNeXt - improved results
+
+#### Evaluation Metrics
+
+| Metric    | Value |
+|-----------|------:|
+| Accuracy  |       |
+| Precision |       |
+| Recall    |       |
+| F1 Score  |       |
+| F1 Score AD |       |
+| F1 Score NC |       |
+| AUCROC |       |
+
+## Failure Case Autopsy & Manager Recommendations
