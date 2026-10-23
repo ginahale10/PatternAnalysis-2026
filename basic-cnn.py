@@ -9,6 +9,10 @@ from data_loader import train_loader, validation_loader
 
 # Device configuration
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+total_vram = torch.cuda.get_device_properties(device).total_memory
+print(f"GPU: {torch.cuda.get_device_name(device)}")
+print(f"Total VRAM: {total_vram / (1024**3):.2f} GiB")
+
 if not torch.cuda.is_available():
     print("Warning: CUDA not found. Using CPU.")
 
@@ -279,7 +283,7 @@ def calculateLatency(model, data_loader):
 #script to run it all
 
 # Hyperparameters
-num_epochs = 1
+num_epochs = 50
 learning_rate = 1e-3
 channels = 1
 depth = 64
