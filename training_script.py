@@ -18,6 +18,9 @@ if not torch.cuda.is_available():
 
 
 def test_accuracy(model, data_loader):
+    was_training = model.training
+    model.eval()
+
     correct = 0
     total = 0
 
@@ -32,6 +35,7 @@ def test_accuracy(model, data_loader):
 
             total += labels.size(0)
             correct += (predicted == labels).sum().item()
+    model.train(was_training)
     return correct / total
 
 
@@ -237,7 +241,7 @@ def calculateLatency(model, data_loader):
 
 # Hyperparameters
 num_epochs = 150 # we will use the 1 hour mark to early terminate, it will not get to here
-learning_rate = 1e-3
+learning_rate = 1e-4
 channels = 1
 depth = 64
 
@@ -247,7 +251,7 @@ total_params = sum(p.numel() for p in model.parameters())
 print(f"Total parameters: {total_params:,}")
 
 criterion = nn.CrossEntropyLoss()
-optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
+optimizer = torch.optim.AdamW(model.parameters(), lr=learning_rate, weight_decay=0.05)
 
 #train the model
 
@@ -256,7 +260,8 @@ optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 #dump the weights so we can use later if need
 torch.save(model.state_dict(), "convnext_model.pth") # this is so we can analyse it later
 
-#test the model
+#validate the model
+model.eval()
 (actual_labels, predicted_probs) = validate_model(model, validation_loader)
 
 #pickle dump for later
