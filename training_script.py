@@ -4,6 +4,7 @@ import torch
 import torch.nn as nn
 import matplotlib.pyplot as plt
 
+from convnext import classifier
 from data_loader import train_loader, validation_loader
 
 # Device configuration
@@ -35,6 +36,7 @@ def test_accuracy(model, data_loader):
 
 
 #Training
+MAX_TRAINING_TIME = 55 * 60 # give buffer of 5 minutes for other tasks
 
 def train_model(model, data_loader, num_epochs):
 
@@ -51,10 +53,15 @@ def train_model(model, data_loader, num_epochs):
         torch.cuda.reset_peak_memory_stats(device)
 
     for epoch in range(num_epochs):
+
+        if time.time() - start > MAX_TRAINING_TIME:
+            break
+
         model.train()
 
         loss = None
         for i, (images, labels) in enumerate(data_loader): #train_loader
+
             images = images.to(device)
             labels = labels.to(device).long()
 
@@ -229,12 +236,12 @@ def calculateLatency(model, data_loader):
 #script to run it all
 
 # Hyperparameters
-num_epochs = 50
+num_epochs = 150 # we will use the 1 hour mark to early terminate, it will not get to here
 learning_rate = 1e-3
 channels = 1
 depth = 64
 
-model = None # this is where you would configure your imported model 
+model = classifier.to(device)
 
 total_params = sum(p.numel() for p in model.parameters())
 print(f"Total parameters: {total_params:,}")
@@ -246,6 +253,8 @@ optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 
 (epochs, losses, test_accuracies) = train_model(model, train_loader, num_epochs)
 
+#dump the weights so we can use later if need
+torch.save(model.state_dict(), "convnext_model.pth") # this is so we can analyse it later
 
 #test the model
 (actual_labels, predicted_probs) = validate_model(model, validation_loader)
