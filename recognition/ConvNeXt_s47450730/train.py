@@ -244,7 +244,7 @@ def validate_model(model, data_loader):
 
     return (actual_labels, predicted_probs) # so we can pickle this data and evaluate later
 
-def calculateLatency(model, data_loader):i
+def calculateLatency(model, data_loader):
     """
     Calculates the average latency for a given model to make one prediction
     """
@@ -279,7 +279,7 @@ def calculateLatency(model, data_loader):i
 
 # Hyperparameters
 num_epochs = 150 # we will use the 1 hour mark to early terminate, it will not get to this many epochs
-learning_rate = 1e-4
+learning_rate = 1e-3
 
 model = classifier.to(device) # this is our imported classifier model
 
@@ -287,7 +287,7 @@ total_params = sum(p.numel() for p in model.parameters())
 print(f"Total parameters: {total_params:,}")
 
 criterion = nn.CrossEntropyLoss()
-optimizer = torch.optim.AdamW(model.parameters(), lr=learning_rate)
+optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 
 #train the model
 
