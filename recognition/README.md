@@ -1,7 +1,23 @@
 # ADNI classification using ConvNeXt model
-Helping to diagnose Alzheimer's disease using MRI brain scans.
 
-ConvNeXt is a modern convolutional neural network (CNN) that takes many of the successful design elements of Vision Transformers and Swin Transformers to build upon ResNet, helping to outperform all existing computer vision models before it. Here, we aim to explore it's capabilities, building a model to help diagnose Alzheimer's disease through MRI brain scans. Main goals are to build a model that is fast enough to use in real time to assist doctors, quick to train, and accurate enough to provide confident predictions.
+Alzheimer's Disease (AD) is a progressive neurodegenerative brain disorder that causes rapid decline in a person's cognitive abilities. Living with such disease is difficult, but early diagnosis has been found to cause significant improvements to the lives of those with the disease, as well as helping family to prepare for future decline. Thus, it was proposed a ML model to help catch early signs of AD would be helpful in a clinical setting. 
+
+ConvNeXt is a modern convolutional neural network (CNN) that takes many of the successful design elements of Vision Transformers and Swin Transformers to build upon ResNet, helping to outperform all existing computer vision models before it. The key innovations adapted to ResNet to create ConvNeXt include:
+
+1.	Inverted Bottleneck Blocks - expansion occurs before depth wise convolution. More effective for resource constrained environments
+2.	Layer Normalisation instead of Batch Normalisation 
+3.	Convolutions are reduced to 4x4 with a stride of 4 to mimic the patch embedding of ViTs - this means patches no longer overlap
+4.	Four stage structure processing feature maps with decreasing resolution - this matches the compute distribution in Swin Transformers
+5.	Depth wise separable convolutions reduce the computational cost by decreasing the number of parameters and the calculations required for each convolution - model can become deeper and wider without increasing computational cost
+
+#### Model Architecture Diagram
+
+
+
+Here, we aim to explore its capabilities, building a model to help diagnose Alzheimer's disease through MRI brain scans. Main goals are to build a model that is fast enough to use in real time to assist doctors, quick to train, and accurate enough to provide confident predictions.
+
+Please refer to my feasibility review, attached at the end of this document. 
+
 
 ## Preparing the dataset
 ADNI is a publicly available dataset containing MRI brain scans, classified into 3 categories: Cognitively Unimpaired, Mild Cognitive Impairment and Alzheimer's Disease. To make classification simpler, Cognitively Unimpaired was labelled as 0 (Normal Control), and Mild Cognitive Impairment and Alzheimer's Disease was grouped labelled 1 (Alzheimer's Disease) - the resulting data being a binary classification task. Since each patient provides multiple brain scans within the dataset, a random split almost guarantees data leakage. 
@@ -44,7 +60,7 @@ The baseline model perfomed averagely, with an f1 score of 0.73. This is reflect
 
 However, considering the complexity of the images, simplicity of the model, and a training time of only 18.37 minutes, this result is not abysmal. Training was cut short at ~18 minutes due to a plateau in the model's performance, which is evident in the graph above. The model reached it's peak accuracy at around 55 epochs, and plateued most likely due to too high of a learning rate and the vanishing gradient problem, which is a common issue for models such as this with no skip connections. Computational metrics were well in the bounds of target values, and thus it is expected that a more advanced model with more parameters and a longer training time will be able to reach the desired level of performance. 
 
-## ConvNeXt - improved results
+## ConvNeXt - First training run
 
 #### Evaluation Metrics
 
@@ -73,8 +89,17 @@ Despite the new model having considerably more parameters and complexity, the mo
 
 1. The learning rate is set too high, meaning the model makes large jumps during gradient descent, potentially overshooting local minimum or finding itself stuck in a flat, local minimum that pleateus learning. 
 2. The learning rate scheduler has dropped the learning rate too drastically around this point, meaning weights cannot make large changes and the model becomes stuck in a sub-optimal solution.
-3. Architecture is underfitting (less obvious as to how to combat this issue)
+3. Architecture severely overfitting - this
+
+After this training run, several improvements were formulated to help the model perform better on unseen data. Additionally, the training accuracy was also recorded throughout to observe if the model was overfitting to the training data 
 
 Another small thing that effects learning is the size of the training set. Due to the original 
 
+
+
 ## Failure Case Autopsy & Manager Recommendations
+
+
+## Artificial Intelligence Usage Disclosure
+
+## References 
