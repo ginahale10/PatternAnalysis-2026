@@ -100,13 +100,11 @@ The data split was reconfigured to add more images into the training data, with 
 
 Figure 6 - Training of ConvNeXt with updated split of train and validation sets
 
-In the next experiment, the training accuracy was also recorded to observe if the model was overfitting, causing the plateau in testing accuracy in previous experiments, usually around the 35 epoch mark. With the original data split, the optimiser was updated to AdamW with a learning rate of 1e-4 and a weight decay of 0.05. Evident in 
+In the next experiment, the training accuracy was also recorded to observe if the model was overfitting, causing the plateau in testing accuracy in previous experiments, usually around the 35 epoch mark. With the original data split, the optimiser was updated to AdamW with a learning rate of 1e-4 and a weight decay of 0.05. Evidently, while not improving accuracy, the changes helped learning to be more stable. The graph demonstrates that the model achieved 100% training accuracy in ~35 epochs, indicating that the model is drastically overfitting.
 
 <img src="updated_hyperparameters_graph.png" width="500">
 
 Figure 7 - Training with updated hyperparameters
-
-Additionally, 
 
 ## Final Model - ConvNeXt reduced architecture with training data augmentation
 
@@ -144,6 +142,8 @@ Figure 8 - Final model training results
 
 Figure 9 - Final model confusion matrix
 
+The implementation for this model can be found in modules_convnext.py. The model takes in a 256 × 256 grayscale MRI image, represented as a PyTorch tensor with one channel, and outputs a 2 X 1 pair of logits, where the first value indicates the NC logit and the second the AD logit. The indicate the probability that the given image belongs to a certain class. For example, [0.1, 0.9] should be inferred as the model predicting AD with a 90% confidence. 
+
 ## Further Experimentation
 
 Earlier experiments, including reducing the learning rate and optimiser, were done on the ConvNeXt-Tiny architecture which was severely overfitting the training data. Since the model was updated later in the process to be a much simpler architecture with less trainable parameters, these experiments should be revisited again to see if they assist with the model's training. However, due to time constraints this was not revisited in this process. 
@@ -165,7 +165,7 @@ Figure 10 - Failure Cases
 
 Since the model performed so much better with a less complex architecture and fewer trainable parameters, there is no major trade-off that needs to be considered between the ConvNeXt-Tiny architecture and the downsized version. Through simple acts of decreased learning parameters, increased weight decay, different optimisers, reduced complexity and data augmentation for training data, the smaller model was able to outperform. 
 
-However, compared to the baseline CNN model the finalised model has about 7x the latency, takes 4x longer to train, has about double maximum VRAM usage and is approximately 8 times larger to store. Nevertheless, considering the resulting statistics are still very small compared to much larger ML models, this trade off is worth the increased ~10% accuracy.
+However, compared to the baseline CNN model the finalised model has about 7x the latency, takes 4x longer to train, has about double maximum VRAM usage and is approximately 8 times larger to store. Nevertheless, considering the resulting statistics are still very small compared to much larger ML models, this trade off is worth the increased ~13% accuracy.
 
 ## Artificial Intelligence Usage Disclosure
 
