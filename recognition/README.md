@@ -15,8 +15,7 @@ Here, we aim to explore its capabilities, building a model to help diagnose Alzh
 #### Model Architecture Diagram 
 
 ![Architecture Diagram](architecture_diagram.png)
-
-Architecture of ConvNeXt-Tiny model (Gupta, 2025)
+Figure 1 - Architecture of ConvNeXt-Tiny model (Gupta, 2025)
 
 Please refer to my feasibility review at the end of this file where I describe my planned approach for my model, including the decision to use the ConvNeXt-Tiny for my model architecture.
 
@@ -43,9 +42,13 @@ Before running the ConvNeXt model a basic CNN model was run on the dataset to us
 
 ![Test Accuracy throughout CNN training](basic_cnn_training.png)
 
+Figure 2 - Test accuracy throughout training of basic CNN model
+
 #### Confusion Matrix
 
 ![Confusion Matrix CNN](cnn_confusion.png)
+
+Figure 3 - Confusion matrix from basic CNN model
 
 The baseline model perfomed averagely, with an f1 score of 0.73. This is reflected in the confusion matrix, which shows a high level of misclassified patients. More detrimentally, the model predicted apprroximately 17% of patients to be NC who in fact had Alzheimer's Disease. This result is incredibly alarming, as false negatives are considerable more damaging than false positives to the health of patients who incorrectly receive this information.
 
@@ -65,9 +68,13 @@ However, considering the complexity of the images, simplicity of the model, and 
 
 ![Test Accuracy throughout CNN training](convnext_first_train.png)
 
+Figure 4 - Test accuracy throughout first training run of basic ConvNeXt
+
 #### Confusion Matrix
 
 ![Confusion Matrix CNN](convnext_confusion.png)
+
+Figure 5 - Confusion matrix from first run ConvNeXt
 
 Despite the new model having considerably more parameters and complexity, the model performed worse than the baseline. Model's accuracy oscillates drastically before plateuing at epoch ~35, maintaining a steady ~71% accuracy for the rest of the hour of training. This could be caused by several factors:
 
@@ -78,7 +85,7 @@ Despite the new model having considerably more parameters and complexity, the mo
 
 ## Further experimentation and findings 
 
-After this training run, several ideas for improvements were formulated and different experiments were run to see what made an improvement to training. Additionally, the training accuracy was also recorded throughout to observe if the model was overfitting to the training data. 
+After this training run, several ideas for improvements were formulated and different experiments were run to see what made an improvement to training. 
 
 Experiments include:
 1. Reduce the learning rate - if the model is falling into a sub optimal solution, a reduced learning rate could assist with more accurate adjustments
@@ -87,11 +94,21 @@ Experiments include:
 4. Reducing the complexity of the model - the ConvNeXt-Tiny architecture has over 27 million parameters, and for a small dataset of only several thousand images, it's very likely the model has simply memorised the training set, consequently not learning any real features causing it to perform poorly on unseen data.
 5. Data augmentation - if the model is overfitting, augmenting the training set could help the model be more robust, learning general features rather than memorising the training set which would help with generalisation.
 
+The data split was reconfigured to add more images into the training data, with the thinking that wider variety of images would help the model train more accurately. Rather than the train folder being split to provide a train and validation set, the entire train folder was kept for training, and the test folder was split ~65/35 validation/test. This ensures all existing training data still exists in the training set. However, the outcome had an unexpected effect. Ass seen in figure 6, the model plateaued at ~60% test accuracy, indicating that the data distribution between the two original train and test folder is very different. Due to such decline in training accuracy, the split was reverted to the original. 
 
+<img src="increased_training_images_graph.png" width="500">
+
+Figure 6 - Training of ConvNeXt with updated split of train and validation sets
+
+In the next experiment, the training accuracy was also recorded to observe if the model was overfitting, causing the plateau in testing accuracy in previous experiments, usually around the 35 epoch mark. With the original data split, the optimiser was updated to AdamW with a learning rate of 1e-4 and a weight decay of 0.05. Evident in 
+
+<img src="updated_hyperparameters_graph.png" width="500">
+
+Additionally, 
 
 ## Final Model - ConvNeXt reduced architecture with training data augmentation
 
-After the success of the reduced 
+Even with a much less complex model with 
 
 
 ## Further Experimentation
@@ -104,7 +121,9 @@ Earlier experiments, including reducing the learning rate and optimiser, were do
 
 ## Artificial Intelligence Usage Disclosure
 
+Throughout this assignment, I used ChatGPT to help analyse results, provide ideas on how to improve my model, and generate code. Code generation was used for data loading and splitting logic (to eliminate patient leakage), augmenting the training data to improve generalisation, and programs that would load in my saved results to produce visuals of my model's performance. Code generated was always code that I understood, so I could verify it was doing as I expected it to and that no undesired behaviour was occurring. I also frequently ran smaller test scenarios on Rangpur to ensure the code generated was working as I anticipated. 
 
+The basis of all my models involved code from reliable sources, such as the COMP3710 UQ Blackboard page, and code found on GitHub by Francesco Saverio Zuppichini (github can be found here https://github.com/FrancescoSaverioZuppichini/ConvNext). Thus, I could be sure the basis of my code was reliable, before using AI to help me improve it and adjust hyperparameters. Not all information provided through discussion with ChatGPT was useful, and many ideas that I tried and tested I decided to eliminate out of the report due to the assumption AI had made being incorrect. Most of the major decisions I made, such as realising the model was vastly overfitting came from my own observation and thinking. I would then take these findings to the AI, which would offer suggestions on how to improve these results. 
 
 ## References 
 Gupta, P., Vadgaonkar, N., Nirmal, J., & Mehendale, N. (2025). A hybrid CNN–ViT framework for skin disease classification via feature extraction and selection. Neural Computing and Applications, 37(32), 27151–27177. https://doi.org/10.1007/s00521-025-11664-x
