@@ -117,6 +117,16 @@ Earlier experiments, including reducing the learning rate and optimiser, were do
 
 ## Failure Case Autopsy & Manager Recommendations
 
+The final model was run on the test set, which until now has not been used on any models within this investigation. Thus, it represents the model being tested on unseen data. Below are 3 images that the model falsely classified as NC, when they were AD. The most likely occurrence for this is that these MRI scans are sagittal (side-ways scan) rather than Axiel (which shows both halves of the brain). It is possible that the training data contained no images of this orientation, and thus resulting in a poor generalisation and incorrect classification. This is also suggested by an f1 score of 0.72 for the test data, showing that while the train/validation split made it seem as though the model was performing okay on unseen data, it's true accuracy is sub-par. More investigation should be further done into the distribution of the datasets, potentially providing a wider range of brain scans to the training data to ensure the trained model is robust and performs well on unseen data. 
+
+<table>
+  <tr>
+    <td><img src="incorrect_1.png" width="250"></td>
+    <td><img src="incorrect_2.png" width="250"></td>
+    <td><img src="incorrect_3.png" width="250"></td>
+  </tr>
+</table>
+Figure 8 - Failure Cases
 
 
 ## Artificial Intelligence Usage Disclosure
