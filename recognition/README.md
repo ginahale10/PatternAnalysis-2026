@@ -80,7 +80,7 @@ However, considering the complexity of the images, simplicity of the model, and 
 | inference latency | 5.314 ms |
 | model size | 112 MiB |
 
-![Test Accuracy throughout CNN training](.png)
+![Test Accuracy throughout CNN training](convnext_first_train.png)
 
 #### Confusion Matrix
 
