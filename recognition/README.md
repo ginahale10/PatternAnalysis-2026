@@ -18,12 +18,12 @@ Here, we aim to explore its capabilities, building a model to help diagnose Alzh
 
 Architecture of ConvNeXt-Tiny model (Gupta, 2025)
 
-Please refer to my feasibility review where I describe my planned approach for my model, including the decision to use the ConvNeXt-Tiny for my model architecture. 
+Please refer to my feasibility review at the end of this file where I describe my planned approach for my model, including the decision to use the ConvNeXt-Tiny for my model architecture.
 
 ## Preparing the dataset
 ADNI is a publicly available dataset containing MRI brain scans, classified into 3 categories: Cognitively Unimpaired, Mild Cognitive Impairment and Alzheimer's Disease. To make classification simpler, Cognitively Unimpaired was labelled as 0 (Normal Control), and Mild Cognitive Impairment and Alzheimer's Disease was grouped labelled 1 (Alzheimer's Disease) - the resulting data being a binary classification task. Since each patient provides multiple brain scans within the dataset, a random split almost guarantees data leakage. 
 
-Already, the provided dataset on Rangpur is divided into a rough 70/30 test/train split with no patient leakage. To further acquire a hold-out set (from now referred to as the test set) and separate validation set, the test folder on Rangpur was split to acquire a rough 70/20/10 split for the train/validation/test sets. This is done in dataset.py. The two folders are loaded in, remapped to have the correct labels (AD = 1, NC = 0), and the train folder split by paient id to a rough 2/3 for validation, and 1/3 for test. These sets are then each transferred to a DataLoader to be used throughout training and evaluation of the model. 
+Already, the provided dataset on Rangpur is divided into a rough 70/30 test/train split with no patient leakage. To further acquire a hold-out set (from now referred to as the test set) and separate validation set, the test folder on Rangpur was split to acquire a rough 50/20/30 split for the train/validation/test sets. This is done in dataset.py. The two folders are loaded in, remapped to have the correct labels (AD = 1, NC = 0), and the train folder split by paient id to a rough 2/3 for validation, and 1/3 for test. These sets are then each transferred to a DataLoader to be used throughout training and evaluation of the model. 
 
 The validation set will be used throughout training to quire feedback on the model's performance on unseen data, helping to fine tune hyperparameters and model architecture. Thus, the test set is imperative as a final evaluation to ensure the model performs well on unseen data.
 
@@ -33,23 +33,13 @@ We also run a quick assertion on the two new acquired sets to ensure the script 
 
 Before running the ConvNeXt model a basic CNN model was run on the dataset to use as a comparitive baseline, deomonstrating the improvement of ConvNeNt. This model was taken from the 3710 blackboard, and tweaked slightly to be compatible with the ADNI dataset and classifcation task. The results are displayed below. 
 
-#### Evaluation Metrics
-
-| Metric    | Value |
-|-----------|------ |
-| Accuracy  | 74.18% |
-| Precision | 72.77% |
-| Recall    | 74.36% |
-| F1 Score  | 0.7356 |
-| AUCROC | 0.817 |
-
-#### Computational Cost
-
-| Metric    | Value |
-|-----------|------:|
-| peak GPU VRAM  | 2881.41 MiB |
-| parameter count | 75,138 |
-| inference latency | 0.342 ms |
+| Evaluation Metric | Value | Computational Cost | Value |
+|---|---:|---|---:|
+| Accuracy | 74.18% | Peak GPU VRAM | 2881.41 MiB |
+| Precision | 72.77% | Parameter count | 75,138 |
+| Recall | 74.36% | Inference latency | 0.342 ms |
+| F1 Score | 0.7356 | | |
+| AUCROC | 0.817 | | |
 
 ![Test Accuracy throughout CNN training](basic_cnn_training.png)
 
@@ -65,20 +55,13 @@ However, considering the complexity of the images, simplicity of the model, and 
 
 #### Evaluation Metrics
 
-| Metric    | Value |
-|-----------|------:|
-| Accuracy  | 71.84% |
-| Precision | 69.84% |
-| Recall    | 73.4% |
-| F1 Score  | 0.7157 |
-| AUCROC | 0.7758 |
-
-| Metric    | Value |
-|-----------|------:|
-| peak GPU VRAM  | 4733.92 MiB |
-| parameter count | 29,299,778 |
-| inference latency | 5.314 ms |
-| model size | 112 MiB |
+| Evaluation Metric | Value | Computational Cost | Value |
+|---|---:|---|---:|
+| Accuracy | 71.84% | Peak GPU VRAM | 4733.92 MiB |
+| Precision | 69.84% | Parameter count | 29,299,778 |
+| Recall | 73.4% | Inference latency | 5.314 ms |
+| F1 Score | 0.7157 | Model size | 112 MiB |
+| AUCROC | 0.7758 | | |
 
 ![Test Accuracy throughout CNN training](convnext_first_train.png)
 
@@ -86,26 +69,37 @@ However, considering the complexity of the images, simplicity of the model, and 
 
 ![Confusion Matrix CNN](convnext_confusion.png)
 
-Despite the new model having considerably more parameters and complexity, the model performed worse than the baseline. After inspection, a few key things were missing. Firstly, since the model's accuracy oscillates drastically before plateuing at epoch ~35, maintaining a steady ~71% accuracy for the rest of the hour of training. This could be caused by several factors:
+Despite the new model having considerably more parameters and complexity, the model performed worse than the baseline. Model's accuracy oscillates drastically before plateuing at epoch ~35, maintaining a steady ~71% accuracy for the rest of the hour of training. This could be caused by several factors:
 
-1. The learning rate is set too high, meaning the model makes large jumps during gradient descent, potentially overshooting local minimum or finding itself stuck in a flat, local minimum that pleateus learning. 
-2. The learning rate scheduler has dropped the learning rate too drastically around this point, meaning weights cannot make large changes and the model becomes stuck in a sub-optimal solution.
-3. Architecture severely overfitting - this
+1. The learning rate is set too high, meaning the model makes large jumps during gradient descent, potentially overshooting local minimum or finding itself stuck in a flat, local minimum that pleateus learning.
+2. Training set is too small and does not represent a wide enough distribution of key features, which translates to poor performance on unseen data 
+3. The learning rate scheduler has dropped the learning rate too drastically around this point, meaning weights cannot make large changes and the model becomes stuck in a sub-optimal solution.
+4. Architecture severely overfitting - this is extremely likely due to the loss of the model reaching 0.0000 by the last epoch. This suggests the model has simply memorised the training data causing it to generalise poorly
 
-After this training run, several improvements were formulated to help the model perform better on unseen data. Additionally, the training accuracy was also recorded throughout to observe if the model was overfitting to the training data 
+## Further experimentation and findings 
 
-Another small thing that effects learning is the size of the training set. Due to the original 
+After this training run, several ideas for improvements were formulated and different experiments were run to see what made an improvement to training. Additionally, the training accuracy was also recorded throughout to observe if the model was overfitting to the training data. 
 
-## Failed experiments and findings 
-Here I want to vaguely explain what I tried, show any relevant graphs and how I decided on stuff
+Experiments include:
+1. Reduce the learning rate - if the model is falling into a sub optimal solution, a reduced learning rate could assist with more accurate adjustments
+2. Change optimiser to AdamW with weight decay of 0.05 - this will hopefully provide more effective regularisation which will assist if the model is overfitting
+3. Increasing the size of the training set. A 70/20/10 for train, validate and test could provide more than enough images for unseen assessments while increasing the data available to train the model
+4. Reducing the complexity of the model - the ConvNeXt-Tiny architecture has over 27 million parameters, and for a small dataset of only several thousand images, it's very likely the model has simply memorised the training set, consequently not learning any real features causing it to perform poorly on unseen data.
+5. Data augmentation - if the model is overfitting, augmenting the training set could help the model be more robust, learning general features rather than memorising the training set which would help with generalisation.
+
+
 
 ## Final Model - ConvNeXt reduced architecture with training data augmentation
 
+After the success of the reduced 
 
 
+## Further Experimentation
 
+Earlier experiments, including reducing the learning rate and optimiser, were done on the ConvNeXt-Tiny architecture which was severely overfitting the training data. Since the model was updated later in the process to be a much simpler architecture with less trainable parameters, these experiments should be revisited again to see if they assist with the model's training. However, due to time constraints this was not revisited in this process. 
 
 ## Failure Case Autopsy & Manager Recommendations
+
 
 
 ## Artificial Intelligence Usage Disclosure
