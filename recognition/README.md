@@ -10,19 +10,20 @@ ConvNeXt is a modern convolutional neural network (CNN) that takes many of the s
 4.	Four stage structure processing feature maps with decreasing resolution - this matches the compute distribution in Swin Transformers
 5.	Depth wise separable convolutions reduce the computational cost by decreasing the number of parameters and the calculations required for each convolution - model can become deeper and wider without increasing computational cost
 
-#### Model Architecture Diagram
-
-
-
 Here, we aim to explore its capabilities, building a model to help diagnose Alzheimer's disease through MRI brain scans. Main goals are to build a model that is fast enough to use in real time to assist doctors, quick to train, and accurate enough to provide confident predictions.
 
-Please refer to my feasibility review, attached at the end of this document. 
+#### Model Architecture Diagram 
 
+![Architecture Diagram](architecture_diagram.png)
+
+Architecture of ConvNeXt-Tiny model (Gupta, 2025)
+
+Please refer to my feasibility review where I describe my planned approach for my model, including the decision to use the ConvNeXt-Tiny for my model architecture. 
 
 ## Preparing the dataset
 ADNI is a publicly available dataset containing MRI brain scans, classified into 3 categories: Cognitively Unimpaired, Mild Cognitive Impairment and Alzheimer's Disease. To make classification simpler, Cognitively Unimpaired was labelled as 0 (Normal Control), and Mild Cognitive Impairment and Alzheimer's Disease was grouped labelled 1 (Alzheimer's Disease) - the resulting data being a binary classification task. Since each patient provides multiple brain scans within the dataset, a random split almost guarantees data leakage. 
 
-Already, the provided dataset on Rangpur is divided into a rough 70/30 test/train split with no patient leakage. To further acquire a hold-out set (from now referred to as the test set) and separate validation set, the test folder on Rangpur was split to acquire a rough 70/20/10 split for the train/validation/test sets. This is done in dataset.py. The two folders are loaded in, remapped to have the correct labels (AD = 1, NC = 0), and the test folder split by paient id to a rough 2/3 for validation, and 1/3 for test. These sets are then each transferred to a DataLoader to be used throughout training and evaluation of the model. 
+Already, the provided dataset on Rangpur is divided into a rough 70/30 test/train split with no patient leakage. To further acquire a hold-out set (from now referred to as the test set) and separate validation set, the test folder on Rangpur was split to acquire a rough 70/20/10 split for the train/validation/test sets. This is done in dataset.py. The two folders are loaded in, remapped to have the correct labels (AD = 1, NC = 0), and the train folder split by paient id to a rough 2/3 for validation, and 1/3 for test. These sets are then each transferred to a DataLoader to be used throughout training and evaluation of the model. 
 
 The validation set will be used throughout training to quire feedback on the model's performance on unseen data, helping to fine tune hyperparameters and model architecture. Thus, the test set is imperative as a final evaluation to ensure the model performs well on unseen data.
 
@@ -60,7 +61,7 @@ The baseline model perfomed averagely, with an f1 score of 0.73. This is reflect
 
 However, considering the complexity of the images, simplicity of the model, and a training time of only 18.37 minutes, this result is not abysmal. Training was cut short at ~18 minutes due to a plateau in the model's performance, which is evident in the graph above. The model reached it's peak accuracy at around 55 epochs, and plateued most likely due to too high of a learning rate and the vanishing gradient problem, which is a common issue for models such as this with no skip connections. Computational metrics were well in the bounds of target values, and thus it is expected that a more advanced model with more parameters and a longer training time will be able to reach the desired level of performance. 
 
-## ConvNeXt - First training run
+## ConvNeXt - First training run 
 
 #### Evaluation Metrics
 
@@ -95,6 +96,13 @@ After this training run, several improvements were formulated to help the model 
 
 Another small thing that effects learning is the size of the training set. Due to the original 
 
+## Failed experiments and findings 
+Here I want to vaguely explain what I tried, show any relevant graphs and how I decided on stuff
+
+## Final Model - ConvNeXt reduced architecture with training data augmentation
+
+
+
 
 
 ## Failure Case Autopsy & Manager Recommendations
@@ -102,4 +110,37 @@ Another small thing that effects learning is the size of the training set. Due t
 
 ## Artificial Intelligence Usage Disclosure
 
+
+
 ## References 
+Gupta, P., Vadgaonkar, N., Nirmal, J., & Mehendale, N. (2025). A hybrid CNN–ViT framework for skin disease classification via feature extraction and selection. Neural Computing and Applications, 37(32), 27151–27177. https://doi.org/10.1007/s00521-025-11664-x
+
+# Feasibility Review - AD Diagnosis with ConvNeXt Model
+### User Need, Scope & Acceptance Criteria
+
+Alzheimer’s disease is often difficult to detect and diagnose in its earliest stages. Possible early diagnoses would drastically improve conditions for patients, by reducing anxiety caused by previously unexplained symptoms, allowing families to plan, enabling patients to prioritise their health, helping to preserve cognitive function, seek support and available resources. Thus, it is proposed a ML model could assist doctors with early diagnosis, providing a prediction, alongside how confident the model is of its decision. It is noted that false negatives are significantly more damaging than false positives, and the model should aim to reduce occurrences of this more than achieving an extremely high accuracy. The model will aim to have the following:
+1.	F1 score > 0.8  (> 0.9  as extension if this is too easy for the model)
+2.	Able to train in < 60 minutes to allow for multiple experiments to easily occur
+3.	Model size <= 150 MB to allow for easy saving and deployment
+4.	Peak VRAM of 8 GB
+5.	< 1ms of latency
+
+### Model Choice & Course Concepts
+
+I will be making a ConvNext model (difficulty hard) to classify the ADNI dataset. I will not use pretrained weights, and will implement the ConvNext-tiny model, since a baseline smoke test already showed a basic CNN managed to > 0.7 f1 score in 18 minutes of training, thus I am confident the tiny model will be sufficient to gain an f1 score > 0.9 in an hour of training. This model has 4 stages, each with respectively 3, 3, 9, and 3 blocks. Each stage will have 96, 192, 384, and 768 channels per stage respectively. I will use Cross-Entropy loss, and the final layer will be a fully connected neural layer using a sigmoid activation function to classify, since there are only 2 classes. This also automatically gives me the confidence of the models’ prediction. Data will be split into 2 groups, AD and NC, and separated into 3 datasets – test, validation and train. There will be no patient crossover between sets to avoid data leakage. 
+ConvNext is an extension of ResNet-50, adapting techniques used in Vision and Swin Transformers to enhance the model. The paper “A ConvNet for the 2020” shows the model vastly out-performs these competitors, as seen in figure 1.  
+
+### Preliminary Feasibility Evidence
+
+The training set up has been run with a basic CNN model to test collection of statistics is feasible and to ensure the data set up is accurate ready for ConvNext. After 50 epochs of training, the model already had an F1 score of 0.7356 in 18.5 minutes of training, a latency of 0.342 milliseconds, a max of 2.8 GB of VRAM used during training. Thus, I am confident the success criteria can be met by ConvNext. 
+
+### Risks & Fallback
+
+Key risks are the model takes a significant amount of time to train and fails to achieve the success criteria to provider reliable diagnosis. If so, the model shall be simplified, for example implementing ResNet-50 instead. This is likely to be successful as a basic CNN already showed significant results in a short period of training. 
+
+### References
+Liu, Z., Mao, H., Wu, C.-Y., Feichtenhofer, C., Darrell, T., & Xie, S. (2022). A ConvNet for the 2020s. 2022 IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR), 11966–11976. https://doi.org/10.1109/cvpr52688.2022.01167
+
+### Appendix
+
+![ConvNeXt against other vision models](convnext_comparison_graph.png)
