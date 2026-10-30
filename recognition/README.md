@@ -104,12 +104,45 @@ In the next experiment, the training accuracy was also recorded to observe if th
 
 <img src="updated_hyperparameters_graph.png" width="500">
 
+Figure 7 - Training with updated hyperparameters
+
 Additionally, 
 
 ## Final Model - ConvNeXt reduced architecture with training data augmentation
 
-Even with a much less complex model with 
+Since model complexity and overfitting is evidently the model's main downfall, it was decided to replace the original architecture with a much smaller design, with significantly less parameters. This involved the following update to the model: 
 
+Before
+```
+depths = [3, 3, 9, 3]
+widths = [96, 192, 384, 768]
+```
+After
+```
+depths = [1, 1, 2, 1]
+widths = [24, 48, 96, 192]
+```
+Additionally, to help improve generalisation, data augmentation was added to the training dataset, to help develop a more robust model.
+
+Evident in the statistics below, these changes helped to improve from ~70% validation accuracy to 87% and an f1 score of 0.876. 
+
+Even with a much less complex model with almost 50 x less parameters, the model performed significantly better in 1 hour of training time than it's more complex counterpart. 
+
+| Evaluation Metric | Value | Computational Cost | Value |
+|---|---:|---|---:|
+| Accuracy | 87.51% | Peak GPU VRAM | 432.72 MiB |
+| Precision | 84.15% | Parameter count | 592,442 |
+| Recall | 91.35% | Inference latency | 2.214 ms |
+| F1 Score | 0.876 | Model size | 2.19345 MiB |
+| AUCROC | 0.87 | | |
+
+<img src="final_model_graph.png" width="500">
+
+Figure 8 - Final model training results
+
+<img src="final_model_confusion.png" width="500">
+
+Figure 9 - Final model confusion matrix
 
 ## Further Experimentation
 
@@ -126,8 +159,13 @@ The final model was run on the test set, which until now has not been used on an
     <td><img src="incorrect_3.png" width="250"></td>
   </tr>
 </table>
-Figure 8 - Failure Cases
+Figure 10 - Failure Cases
 
+## Engineering recommendation and trade-off synthesis
+
+Since the model performed so much better with a less complex architecture and fewer trainable parameters, there is no major trade-off that needs to be considered between the ConvNeXt-Tiny architecture and the downsized version. Through simple acts of decreased learning parameters, increased weight decay, different optimisers, reduced complexity and data augmentation for training data, the smaller model was able to outperform. 
+
+However, compared to the baseline CNN model the finalised model has about 7x the latency, takes 4x longer to train, has about double maximum VRAM usage and is approximately 8 times larger to store. Nevertheless, considering the resulting statistics are still very small compared to much larger ML models, this trade off is worth the increased ~10% accuracy.
 
 ## Artificial Intelligence Usage Disclosure
 
